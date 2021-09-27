@@ -20,3 +20,7 @@ Executar o projeto
 Biblioteca de comunicação bidirecional através de eventos
 
 ### yarn add socket.io
+
+Permitir acesso a API
+
+### yarn add cors
