@@ -45,41 +45,80 @@ function App() {
   }, [listaMensagem]);
 
   return (
-    <div className="App">
-      <h1>Chat</h1>
+    <div className="Container">
       {!logado ?
-        <>
-          <div>
-            <label>Nome: </label>
-            <input type="text" placeholder="Nome" name="nome" value={nome} onChange={(text) => { setNome(text.target.value) }} />
-          </div>
-          <div>
-            <label>Sala: </label>
-            <select name="sala" value={sala} onChange={(text) => { setSala(text.target.value) }} >
-              <option value="">Selecione</option>
-              <option value="1">Node.js</option>
-              <option value="2">React</option>
-              <option value="3">React Native</option>
-              <option value="4">Next</option>
-            </select>
-          </div>
-          <div>
-            <button onClick={conectarSala}>Conectar</button>
-          </div>
-        </>
-        :
-        <>
-          {listaMensagem.map((msg, key) => {
-            return (
-              <div key={key}>
-                {msg.nome}: {msg.mensagem}
-              </div>
-            )
-          })}
-          <input type="text" name="mensagem" placeholder="Mensagem..." value={mensagem} onChange={(text) => { setMensagem(text.target.value) }} />
+        <div className="Content">
+          <h1 className="Header">Chat</h1>
 
-          <button onClick={enviarMensagem}>Enviar</button>
-        </>
+          <div className="Form">
+            <div className="Input">
+              <label>Nome: </label>
+              <input
+                type="text"
+                placeholder="Nome"
+                name="nome" value={nome}
+                onChange={(text) => { setNome(text.target.value) }}
+              />
+            </div>
+
+            <div className="Input">
+              <label>Sala: </label>
+              <select
+                name="sala"
+                value={sala}
+                onChange={(text) => { setSala(text.target.value) }}
+              >
+                <option value="">Selecione</option>
+                <option value="1">Node.js</option>
+                <option value="2">React</option>
+                <option value="3">React Native</option>
+                <option value="4">Next</option>
+              </select>
+            </div>
+
+            <button onClick={conectarSala}>Conectar</button>
+
+          </div>
+
+        </div>
+        :
+        <div className="Content">
+          <div className="HeaderContent">
+            <img src="avatar.png" alt={`Usuario: ${nome}`} />
+            <h3>{nome}</h3>
+          </div>
+          <div className="InputContent">
+            <input
+              type="text"
+              name="mensagem"
+              placeholder="Mensagem..."
+              value={mensagem}
+              onChange={(text) => { setMensagem(text.target.value) }}
+            />
+            <button onClick={enviarMensagem}>Enviar</button>
+          </div>
+          <div className="MessageContent">
+            {listaMensagem.map((msg, key) => {
+              return (
+                <div key={key}>
+                  {nome === msg.nome ?
+                    <div className="MessageSender">
+                      <div className="MessageSenderDet">
+                        <p>{msg.mensagem}</p>
+                      </div>
+                    </div>
+                    :
+                    <div className="MessageReceive">
+                      <div className="MessageReceiveDet">
+                        <p>{msg.mensagem}</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              )
+            })}
+          </div>
+        </div>
       }
     </div>
   );
