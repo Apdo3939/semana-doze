@@ -24,3 +24,11 @@ Biblioteca de comunicação bidirecional através de eventos
 Permitir acesso a API
 
 ### yarn add cors
+
+Biblioteca java script para gerenciamentos de bancos de dados
+
+### yarn add sequelize
+
+Drive referente ao banco de dados Mysql
+
+### yarn add mysql2
