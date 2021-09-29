@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
 import './App.css';
+import api from './configApi';
 
 let socket;
 
@@ -10,13 +11,34 @@ function App() {
 
   const [logado, setLogado] = useState(false);
   const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
   const [sala, setSala] = useState("");
   const [mensagem, setMensagem] = useState("");
   const [listaMensagem, setListaMensagem] = useState([]);
 
-  const conectarSala = () => {
-    setLogado(true);
-    socket.emit("sala_conectar", sala);
+  const conectarSala = async e => {
+    e.preventDefault();
+
+    const headers = {
+      'Content-Type': 'application/json'
+    }
+
+    await api.post('/login', { email }, { headers })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((err) => {
+        if (err.response) {
+          console.log(err)
+        }
+        else {
+          console.log('Tente mais tarde!')
+        }
+      })
+
+    /*setLogado(true);
+    setNome(nome);
+    socket.emit("sala_conectar", sala);*/
   }
 
   const enviarMensagem = async () => {
@@ -32,7 +54,6 @@ function App() {
     setListaMensagem([...listaMensagem, conteudoMensagem.conteudo]);
     setMensagem("");
   }
-
 
   useEffect(() => {
     socket = socketIOClient(URL_BACKEND);
@@ -50,14 +71,14 @@ function App() {
         <div className="Content">
           <h1 className="Header">Chat</h1>
 
-          <div className="Form">
+          <form onSubmit={conectarSala} className="Form">
             <div className="Input">
-              <label>Nome: </label>
+              <label>Email: </label>
               <input
-                type="text"
-                placeholder="Nome"
-                name="nome" value={nome}
-                onChange={(text) => { setNome(text.target.value) }}
+                type="email"
+                placeholder="email"
+                name="email" value={email}
+                onChange={(text) => { setEmail(text.target.value) }}
               />
             </div>
 
@@ -76,9 +97,9 @@ function App() {
               </select>
             </div>
 
-            <button onClick={conectarSala}>Conectar</button>
+            <button type="submit">Conectar</button>
 
-          </div>
+          </form>
 
         </div>
         :
