@@ -20,7 +20,55 @@ app.get('/', (req, res) => {
 });
 
 app.post('/create', async (req, res) => {
-    res.send('Cadastrar usuário nesta requisicão!!!');
+    const data = req.body;
+    const user = await User.findOne({
+        where: {
+            email: data.email
+        }
+    })
+
+    if (user) {
+        return res.status(400).json({
+            err: true,
+            message: 'Email cadastrado, por favor usar outro email!',
+        })
+    }
+    await User.create(data)
+        .then(() => {
+            return res.json({
+                err: false,
+                message: 'Cadastrado!',
+                data
+            });
+        })
+        .catch(() => {
+            return res.status(400).json({
+                err: true,
+                message: 'Não Cadastrado!',
+            });
+        })
+});
+
+app.post('/login', async (req, res) => {
+    const user = await User.findOne({
+        attributes: ['id', 'nome'],
+        where: {
+            email: req.body.email
+        }
+    });
+
+    if (user === null) {
+        return res.status(404).json({
+            err: true,
+            message: 'Usuário não encontrado!',
+        });
+    }
+
+    return res.json({
+        err: false,
+        message: 'Login realizado com sucesso!',
+        user
+    })
 })
 
 const server = app.listen(8081, () => {
