@@ -6,6 +6,7 @@ const app = express();
 app.use(express.json());
 
 const User = require('./models/User');
+const Message = require('./models/Message');
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -17,6 +18,25 @@ app.use((req, res, next) => {
 
 app.get('/', (req, res) => {
     res.send("Bem vindo Alexandre Pereira!");
+});
+
+app.post('/create-message', async (req, res) => {
+    const data = req.body;
+
+    await Message.create(data)
+        .then(() => {
+            return res.json({
+                err: false,
+                message: 'Messagem Cadastrado!',
+                data
+            });
+        })
+        .catch(() => {
+            return res.status(400).json({
+                err: true,
+                message: 'Messagem não Cadastrado!',
+            });
+        })
 });
 
 app.post('/create', async (req, res) => {
@@ -85,6 +105,11 @@ io.on("connection", (socket) => {
     });
     socket.on("enviar_mensagem", (data) => {
         console.log(data);
+        Message.create({
+            message: data.conteudo.mensagem,
+            salaId: data.sala,
+            userId: data.conteudo.user.id
+        });
         socket.to(data.sala).emit("receber_mensagem", data.conteudo);
     });
 })

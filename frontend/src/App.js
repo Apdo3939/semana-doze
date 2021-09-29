@@ -19,11 +19,9 @@ function App() {
 
   const conectarSala = async e => {
     e.preventDefault();
-
     const headers = {
       'Content-Type': 'application/json'
     }
-
     await api.post('/login', { email }, { headers })
       .then((response) => {
         console.log(response.data.user);
@@ -42,13 +40,16 @@ function App() {
       })
   }
 
-  const enviarMensagem = async () => {
-    console.log("Mensagem enviada " + mensagem);
+  const enviarMensagem = async e => {
+    e.preventDefault();
     const conteudoMensagem = {
       sala,
       conteudo: {
-        nome,
-        mensagem
+        mensagem,
+        user: {
+          id: idUser,
+          nome
+        }
       }
     }
     await socket.emit("enviar_mensagem", conteudoMensagem);
@@ -108,7 +109,7 @@ function App() {
             <img src="avatar.png" alt={`Usuario: ${nome}`} />
             <h3>{nome} {idUser}</h3>
           </div>
-          <div className="InputContent">
+          <form onSubmit={enviarMensagem} className="InputContent">
             <input
               type="text"
               name="mensagem"
@@ -116,8 +117,8 @@ function App() {
               value={mensagem}
               onChange={(text) => { setMensagem(text.target.value) }}
             />
-            <button onClick={enviarMensagem}>Enviar</button>
-          </div>
+            <button type="submit">Enviar</button>
+          </form>
           <div className="MessageContent">
             {listaMensagem.map((msg, key) => {
               return (
