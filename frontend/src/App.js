@@ -11,6 +11,7 @@ function App() {
 
   const [logado, setLogado] = useState(false);
   const [nome, setNome] = useState("");
+  const [idUser, setIdUser] = useState("");
   const [email, setEmail] = useState("");
   const [sala, setSala] = useState("");
   const [mensagem, setMensagem] = useState("");
@@ -25,20 +26,20 @@ function App() {
 
     await api.post('/login', { email }, { headers })
       .then((response) => {
-        console.log(response.data);
+        console.log(response.data.user);
+        setNome(response.data.user.nome);
+        setIdUser(response.data.user.id);
+        setLogado(true);
+        socket.emit("sala_conectar", sala);
       })
       .catch((err) => {
         if (err.response) {
-          console.log(err)
+          console.log(err.response.data.message)
         }
         else {
           console.log('Tente mais tarde!')
         }
       })
-
-    /*setLogado(true);
-    setNome(nome);
-    socket.emit("sala_conectar", sala);*/
   }
 
   const enviarMensagem = async () => {
@@ -100,13 +101,12 @@ function App() {
             <button type="submit">Conectar</button>
 
           </form>
-
         </div>
         :
         <div className="Content">
           <div className="HeaderContent">
             <img src="avatar.png" alt={`Usuario: ${nome}`} />
-            <h3>{nome}</h3>
+            <h3>{nome} {idUser}</h3>
           </div>
           <div className="InputContent">
             <input
