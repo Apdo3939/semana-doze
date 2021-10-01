@@ -21,7 +21,7 @@
 }
 
 .Form {
-  margin: 1.25rem 0;
+  margin-top: 1.25rem;
 }
 
 .Input {
@@ -52,21 +52,34 @@
   border-color: rgba(0, 100, 0, 0.5);
 }
 
-button {
+.ContentButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  cursor: pointer;
+}
+
+.ContentButton a {
+  font-size: smaller;
+  margin-top: 1rem;
+}
+
+.ContentButton button {
+  justify-content: flex-end;
+  align-items: flex-end;
   font-size: large;
   height: 3rem;
   padding: 1rem 2rem;
-  margin-top: 1rem;
   border-radius: 0.25rem;
   text-transform: uppercase;
   color: #f7f7f7;
   background-color: rgba(0, 100, 0, 0.5);
   border: none;
   cursor: pointer;
-  transition: ease-in-out;
 }
 
-button:hover {
+.ContentButton button:hover {
   color: rgba(0, 100, 0, 0.8);
   background-color: rgba(0, 100, 0, 0.2);
   font-weight: 500;

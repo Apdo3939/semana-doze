@@ -20,7 +20,14 @@ app.use((req, res, next) => {
 app.get('/list-messages/:sala', async (req, res) => {
     const { sala } = req.params;
     await Message.findAll({
-        where: { salaId: sala }
+        order: [['id', 'ASC']],
+        where: { salaId: sala },
+        include: [{
+            model: User
+        },
+        {
+            model: Sala
+        }],
     })
         .then((data) => {
             return res.json({

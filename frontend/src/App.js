@@ -29,6 +29,7 @@ function App() {
         setIdUser(response.data.user.id);
         setLogado(true);
         socket.emit("sala_conectar", sala);
+        listarMensagens();
       })
       .catch((err) => {
         if (err.response) {
@@ -38,6 +39,22 @@ function App() {
           console.log('Tente mais tarde!')
         }
       })
+  }
+
+  const listarMensagens = async () => {
+    await api.get('/list-messages/' + sala)
+      .then((response) => {
+        console.log(response.data.data);
+        setListaMensagem(response.data.data);
+      })
+      .catch((err) => {
+        if (err.response) {
+          console.log(err.response.data.message)
+        }
+        else {
+          console.log('Tente mais tarde!')
+        }
+      });
   }
 
   const enviarMensagem = async e => {
@@ -98,16 +115,17 @@ function App() {
                 <option value="4">Next</option>
               </select>
             </div>
-
-            <button type="submit">Conectar</button>
-
+            <div className="ContentButton">
+              <button type="submit">Conectar</button>
+              <a href="/">Cadastra-se</a>
+            </div>
           </form>
         </div>
         :
         <div className="Content">
           <div className="HeaderContent">
             <img src="avatar.png" alt={`Usuario: ${nome}`} />
-            <h3>{nome} {idUser}</h3>
+            <h3>{nome}</h3>
           </div>
           <form onSubmit={enviarMensagem} className="InputContent">
             <input
@@ -123,16 +141,16 @@ function App() {
             {listaMensagem.map((msg, key) => {
               return (
                 <div key={key}>
-                  {nome === msg.nome ?
+                  {idUser === msg.user.id ?
                     <div className="MessageSender">
                       <div className="MessageSenderDet">
-                        <p>{msg.mensagem}</p>
+                        <p>{msg.user.nome} : {msg.message}</p>
                       </div>
                     </div>
                     :
                     <div className="MessageReceive">
                       <div className="MessageReceiveDet">
-                        <p>{msg.mensagem}</p>
+                        <p>{msg.user.nome} : {msg.message}</p>
                       </div>
                     </div>
                   }
