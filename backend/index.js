@@ -7,6 +7,7 @@ app.use(express.json());
 
 const User = require('./models/User');
 const Message = require('./models/Message');
+const Sala = require('./models/Sala');
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -16,8 +17,43 @@ app.use((req, res, next) => {
     next();
 })
 
-app.get('/', (req, res) => {
-    res.send("Bem vindo Alexandre Pereira!");
+app.get('/list-messages/:sala', async (req, res) => {
+    const { sala } = req.params;
+    await Message.findAll({
+        where: { salaId: sala }
+    })
+        .then((data) => {
+            return res.json({
+                err: false,
+                data
+            });
+        })
+        .catch(() => {
+            return res.status(400).json({
+                err: true,
+                message: 'Nenhuma mensagem(s) encontrada(s)!',
+            });
+        })
+
+});
+
+app.post('/create-room', async (req, res) => {
+    const data = req.body;
+
+    await Sala.create(data)
+        .then(() => {
+            return res.json({
+                err: false,
+                message: 'Sala Cadastrada!',
+                data
+            });
+        })
+        .catch(() => {
+            return res.status(400).json({
+                err: true,
+                message: 'Sala não Cadastrado!',
+            });
+        })
 });
 
 app.post('/create-message', async (req, res) => {
@@ -27,7 +63,7 @@ app.post('/create-message', async (req, res) => {
         .then(() => {
             return res.json({
                 err: false,
-                message: 'Messagem Cadastrado!',
+                message: 'Messagem Cadastrada!',
                 data
             });
         })
