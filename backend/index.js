@@ -44,6 +44,25 @@ app.get('/list-messages/:sala', async (req, res) => {
 
 });
 
+app.get('/list-salas/', async (req, res) => {
+    await Sala.findAll({
+        order: [['nome', 'ASC']],
+    })
+        .then((salas) => {
+            return res.json({
+                err: false,
+                salas
+            });
+        })
+        .catch(() => {
+            return res.status(400).json({
+                err: true,
+                message: 'Nenhuma sala(s) encontrada(s)!',
+            });
+        })
+
+});
+
 app.post('/create-room', async (req, res) => {
     const data = req.body;
 

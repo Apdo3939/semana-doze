@@ -157,15 +157,15 @@ img {
 
 .InputContent {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .InputContent input {
   display: flex;
-  flex: content;
+  flex: 1;
   height: 2rem;
-  margin-top: 1rem;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
   border-color: rgba(0, 100, 0, 0.5);
@@ -178,7 +178,16 @@ img {
   border-radius: 0.25rem;
   text-transform: uppercase;
   color: #f7f7f7;
-  background-color: rgba(0, 100, 100, 0.5);
+  background-color: rgba(0, 100, 0, 0.5);
   border: none;
   cursor: pointer;
+}
+
+.AlertErr {
+  background-color: rgba(150, 0, 0, 0.5);
+  border-radius: 0.5rem;
+  padding: 0.70rem;
+  color: #f7f7f7;
+  font-size: 1rem;
+
 }

@@ -16,6 +16,11 @@ function App() {
   const [sala, setSala] = useState("");
   const [mensagem, setMensagem] = useState("");
   const [listaMensagem, setListaMensagem] = useState([]);
+  const [salas, setSalas] = useState([]);
+  const [status, setStatus] = useState({
+    type: "",
+    message: "",
+  });
 
   const conectarSala = async e => {
     e.preventDefault();
@@ -33,10 +38,16 @@ function App() {
       })
       .catch((err) => {
         if (err.response) {
-          console.log(err.response.data.message)
+          setStatus({
+            type: "erro",
+            message: err.response.data.message,
+          });
         }
         else {
-          console.log('Tente mais tarde!')
+          setStatus({
+            type: "erro",
+            message: "Tente mais tarde!",
+          });
         }
       })
   }
@@ -57,6 +68,27 @@ function App() {
       });
   }
 
+  const listarSalas = async () => {
+    await api.get('/list-salas/')
+      .then((response) => {
+        setSalas(response.data.salas);
+      })
+      .catch((err) => {
+        if (err.response) {
+          setStatus({
+            type: "erro",
+            message: err.response.data.message,
+          });
+        }
+        else {
+          setStatus({
+            type: "erro",
+            message: "Tente mais tarde!",
+          });
+        }
+      });
+  }
+
   const enviarMensagem = async e => {
     e.preventDefault();
     const conteudoMensagem = {
@@ -72,10 +104,12 @@ function App() {
     await socket.emit("enviar_mensagem", conteudoMensagem);
     setListaMensagem([...listaMensagem, conteudoMensagem.conteudo]);
     setMensagem("");
+    listarMensagens();
   }
 
   useEffect(() => {
     socket = socketIOClient(URL_BACKEND);
+    listarSalas();
   }, []);
 
   useEffect(() => {
@@ -89,7 +123,7 @@ function App() {
       {!logado ?
         <div className="Content">
           <h1 className="Header">Chat</h1>
-
+          {status.type === "erro" ? <p className="AlertErr">{status.message}</p> : ""}
           <form onSubmit={conectarSala} className="Form">
             <div className="Input">
               <label>Email: </label>
@@ -109,10 +143,11 @@ function App() {
                 onChange={(text) => { setSala(text.target.value) }}
               >
                 <option value="">Selecione</option>
-                <option value="1">Node.js</option>
-                <option value="2">React</option>
-                <option value="3">React Native</option>
-                <option value="4">Next</option>
+                {salas.map((sala) => {
+                  return (
+                    <option key={sala.id} value={sala.id}>{sala.nome}</option>
+                  )
+                })}
               </select>
             </div>
             <div className="ContentButton">
