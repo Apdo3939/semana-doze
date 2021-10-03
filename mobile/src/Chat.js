@@ -9,8 +9,12 @@ function Chat() {
     const ENDPOINT = "http://192.168.1.4:8081";
 
     const [logado, setLogado] = useState(false);
-    const [email, setEmail] = useState("");
-    const [sala, setSala] = useState("");
+    const [nome, setNome] = useState("Alex Brown");
+    const [idUser, setIdUser] = useState("2")
+    const [email, setEmail] = useState("alex@exemplo.com.br");
+    const [sala, setSala] = useState("1");
+    const [mensagem, setMensagem] = useState("");
+    const [listarMensagem, setListarMensagem] = useState([]);
 
     const conectarSala = () => {
         console.log(email + " " + sala);
@@ -18,9 +22,33 @@ function Chat() {
         socket.emit("sala_conectar", sala);
     }
 
+    const enviarMensagem = async () => {
+        console.log("Mensagem: " + mensagem);
+        const conteudoMensagem = {
+            sala,
+            conteudo: {
+                mensagem,
+                user: {
+                    id: idUser,
+                    nome
+                }
+            }
+        }
+        console.log(conteudoMensagem);
+        await socket.emit("enviar_mensagem", conteudoMensagem);
+        setListarMensagem([...listarMensagem, conteudoMensagem.conteudo]);
+        setMensagem("");
+    }
+
     useEffect(() => {
         socket = socketIOClient(ENDPOINT);
     }, []);
+
+    useEffect(() => {
+        socket.on("receber_mensagem", (data) => {
+            setListarMensagem([...listarMensagem, data]);
+        });
+    }, [listarMensagem]);
 
     return (
         <View style={styles.container}>
@@ -51,7 +79,31 @@ function Chat() {
                 </>
 
                 :
-                <Text>Chat!!!</Text>}
+                <>
+                    <View>
+                        <Text>Nome: {nome}  Sala: {sala}</Text>
+                    </View>
+                    <Text>Mensagem</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="mensagem..."
+                        value={mensagem}
+                        onChangeText={(texto) => { setMensagem(texto) }}
+                    />
+                    <Button
+                        onPress={enviarMensagem}
+                        title="Enviar"
+                        color="#00cc0077" />
+
+                    {listarMensagem.map((msg, key) => {
+                        return (
+                            <View key={key}>
+                                <Text>{msg.user.nome}: {msg.mensagem}</Text>
+                            </View>
+                        )
+                    })}
+                </>
+            }
         </View>
     )
 }

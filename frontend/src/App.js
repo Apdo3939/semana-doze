@@ -115,8 +115,9 @@ function App() {
   useEffect(() => {
     socket.on("receber_mensagem", (data) => {
       setListaMensagem([...listaMensagem, data]);
-    })
-  }, [listaMensagem]);
+    });
+    listarMensagens();
+  });
 
   return (
     <div className="Container">
