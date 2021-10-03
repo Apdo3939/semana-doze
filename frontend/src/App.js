@@ -29,11 +29,10 @@ function App() {
     }
     await api.post('/login', { email }, { headers })
       .then((response) => {
-        console.log(response.data.user);
         setNome(response.data.user.nome);
         setIdUser(response.data.user.id);
         setLogado(true);
-        socket.emit("sala_conectar", sala);
+        socket.emit("sala_conectar", Number(sala));
         listarMensagens();
       })
       .catch((err) => {
@@ -55,21 +54,26 @@ function App() {
   const listarMensagens = async () => {
     await api.get('/list-messages/' + sala)
       .then((response) => {
-        console.log(response.data.data);
         setListaMensagem(response.data.data);
       })
       .catch((err) => {
         if (err.response) {
-          console.log(err.response.data.message)
+          setStatus({
+            type: "erro",
+            message: err.response.data.message,
+          });
         }
         else {
-          console.log('Tente mais tarde!')
+          setStatus({
+            type: "erro",
+            message: "Tente mais tarde!",
+          });
         }
       });
   }
 
   const listarSalas = async () => {
-    await api.get('/list-salas/')
+    await api.get('/list-salas')
       .then((response) => {
         setSalas(response.data.salas);
       })
@@ -92,7 +96,7 @@ function App() {
   const enviarMensagem = async e => {
     e.preventDefault();
     const conteudoMensagem = {
-      sala,
+      sala: Number(sala),
       conteudo: {
         mensagem,
         user: {
@@ -115,8 +119,8 @@ function App() {
   useEffect(() => {
     socket.on("receber_mensagem", (data) => {
       setListaMensagem([...listaMensagem, data]);
+      listarMensagens();
     });
-    listarMensagens();
   });
 
   return (

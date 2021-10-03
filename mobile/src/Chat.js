@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Text, TextInput, StyleSheet, View, Button } from "react-native";
 import socketIOClient from "socket.io-client";
+import api from './configApi';
+import { RadioButton } from 'react-native-paper';
 
 let socket;
 
@@ -9,23 +11,50 @@ function Chat() {
     const ENDPOINT = "http://192.168.1.4:8081";
 
     const [logado, setLogado] = useState(false);
-    const [nome, setNome] = useState("Alex Brown");
-    const [idUser, setIdUser] = useState("2")
-    const [email, setEmail] = useState("alex@exemplo.com.br");
-    const [sala, setSala] = useState("1");
+    const [nome, setNome] = useState("");
+    const [idUser, setIdUser] = useState("")
+    const [email, setEmail] = useState("");
+    const [sala, setSala] = useState("");
     const [mensagem, setMensagem] = useState("");
     const [listarMensagem, setListarMensagem] = useState([]);
+    const [salas, setSalas] = useState([]);
+    const [status, setStatus] = useState({
+        type: '',
+        mensagem: ''
+    });
 
-    const conectarSala = () => {
-        console.log(email + " " + sala);
-        setLogado(true);
-        socket.emit("sala_conectar", sala);
+
+    const conectarSala = async e => {
+        e.preventDefault();
+        const headers = {
+            "Content-Type": "application/json"
+        }
+        await api.post('/login', { email }, headers)
+            .then((response) => {
+                setNome(response.data.user.nome);
+                setIdUser(response.data.user.id);
+                setLogado(true);
+                socket.emit("sala_conectar", Number(sala));
+                listarMensagens();
+            })
+            .catch((err) => {
+                if (err.response) {
+                    setStatus({
+                        type: 'erro',
+                        mensagem: err.response.data.mensagem
+                    });
+                } else {
+                    setStatus({
+                        type: 'erro',
+                        mensagem: 'Tente mais tarde!'
+                    });
+                }
+            });
     }
 
     const enviarMensagem = async () => {
-        console.log("Mensagem: " + mensagem);
         const conteudoMensagem = {
-            sala,
+            sala: Number(sala),
             conteudo: {
                 mensagem,
                 user: {
@@ -34,26 +63,71 @@ function Chat() {
                 }
             }
         }
-        console.log(conteudoMensagem);
         await socket.emit("enviar_mensagem", conteudoMensagem);
         setListarMensagem([...listarMensagem, conteudoMensagem.conteudo]);
+        listarMensagens();
         setMensagem("");
+    }
+
+    const listarSalas = async () => {
+        await api.get('/list-salas')
+            .then((response) => {
+                setSalas(response.data.salas);
+            })
+            .catch((err) => {
+                if (err.response) {
+                    setStatus({
+                        type: "erro",
+                        message: err.response.data.message,
+                    });
+                }
+                else {
+                    setStatus({
+                        type: "erro",
+                        message: "Tente mais tarde!",
+                    });
+                }
+            });
+    }
+
+    const listarMensagens = async () => {
+        await api.get('/list-messages/' + sala)
+            .then((response) => {
+                setListarMensagem(response.data.data);
+            })
+            .catch((err) => {
+                if (err.response) {
+                    setStatus({
+                        type: "erro",
+                        message: err.response.data.message,
+                    });
+                }
+                else {
+                    setStatus({
+                        type: "erro",
+                        message: "Tente mais tarde!",
+                    });
+                }
+            });
     }
 
     useEffect(() => {
         socket = socketIOClient(ENDPOINT);
+        listarSalas();
     }, []);
 
     useEffect(() => {
         socket.on("receber_mensagem", (data) => {
             setListarMensagem([...listarMensagem, data]);
+            listarMensagens();
         });
-    }, [listarMensagem]);
+    });
 
     return (
         <View style={styles.container}>
             {!logado ?
                 <>
+                    {status.type === 'erro' ? <Text>Usuario não encontrado</Text> : <Text></Text>}
                     <Text>Email</Text>
                     <TextInput
                         style={styles.input}
@@ -65,13 +139,20 @@ function Chat() {
                         onChangeText={(texto) => { setEmail(texto) }}
                     />
                     <Text>Sala</Text>
-                    <TextInput
-                        style={styles.input}
-                        autoCompleteType={false}
-                        placeholder="Sala"
-                        value={sala}
-                        onChangeText={(texto) => { setSala(texto) }}
-                    />
+                    {salas.map((detSala) => {
+                        return (
+                            <View key={detSala.id}>
+                                <RadioButton
+                                    value={detSala.id}
+                                    status={sala === detSala.id ? 'checked' : 'unchecked'}
+                                    onPress={() => setSala(detSala.id)}
+                                />
+                                <Text>
+                                    {detSala.nome}
+                                </Text>
+                            </View>
+                        )
+                    })}
                     <Button
                         onPress={conectarSala}
                         title="Conectar"
@@ -98,7 +179,7 @@ function Chat() {
                     {listarMensagem.map((msg, key) => {
                         return (
                             <View key={key}>
-                                <Text>{msg.user.nome}: {msg.mensagem}</Text>
+                                <Text>{msg.user.nome}: {msg.message}</Text>
                             </View>
                         )
                     })}

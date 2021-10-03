@@ -44,7 +44,7 @@ app.get('/list-messages/:sala', async (req, res) => {
 
 });
 
-app.get('/list-salas/', async (req, res) => {
+app.get('/list-salas', async (req, res) => {
     await Sala.findAll({
         order: [['nome', 'ASC']],
     })
@@ -163,7 +163,7 @@ io.on("connection", (socket) => {
     console.log(socket.id);
     socket.on("sala_conectar", (data) => {
         console.log("Sala selecionada " + data);
-        socket.join(data);
+        socket.join(Number(data));
     });
     socket.on("enviar_mensagem", (data) => {
         console.log(data);
@@ -172,6 +172,6 @@ io.on("connection", (socket) => {
             salaId: data.sala,
             userId: data.conteudo.user.id
         });
-        socket.to(data.sala).emit("receber_mensagem", data.conteudo);
+        socket.to(Number(data.sala)).emit("receber_mensagem", data.conteudo);
     });
 })
