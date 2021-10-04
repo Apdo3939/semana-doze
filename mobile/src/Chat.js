@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, TextInput, StyleSheet, View, Button } from "react-native";
+import { Text, TextInput, StyleSheet, View, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
 import socketIOClient from "socket.io-client";
 import api from './configApi';
 import { RadioButton } from 'react-native-paper';
@@ -124,58 +124,47 @@ function Chat() {
     });
 
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             {!logado ?
-                <>
+                <SafeAreaView style={styles.container}>
+                    <Text style={styles.title}>Chat</Text>
                     {status.type === 'erro' ? <Text>Usuario não encontrado</Text> : <Text></Text>}
-                    <Text>Email</Text>
+                    <Text style={styles.label}>Email</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        autoCompleteType={false}
+                        autoCompleteType="off"
                         placeholder="Email"
                         value={email}
                         onChangeText={(texto) => { setEmail(texto) }}
                     />
-                    <Text>Sala</Text>
+                    <Text style={styles.label}>Sala</Text>
                     {salas.map((detSala) => {
                         return (
-                            <View key={detSala.id}>
+                            <View key={detSala.id} style={styles.radio}>
                                 <RadioButton
                                     value={detSala.id}
                                     status={sala === detSala.id ? 'checked' : 'unchecked'}
                                     onPress={() => setSala(detSala.id)}
                                 />
-                                <Text>
+                                <Text style={styles.radioTexto}>
                                     {detSala.nome}
                                 </Text>
                             </View>
                         )
                     })}
-                    <Button
+                    <TouchableOpacity
+                        style={styles.btnConectar}
                         onPress={conectarSala}
-                        title="Conectar"
-                        color="#00cc0077" />
-                </>
-
+                    ><Text style={styles.btnConectarTitulo}>Conectar</Text></TouchableOpacity>
+                </SafeAreaView>
                 :
-                <>
+                <SafeAreaView style={styles.container}>
                     <View>
-                        <Text>Nome: {nome}  Sala: {sala}</Text>
+                        <Text style={styles.title}>Nome: {nome}  Sala: {sala}</Text>
                     </View>
-                    <Text>Mensagem</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="mensagem..."
-                        value={mensagem}
-                        onChangeText={(texto) => { setMensagem(texto) }}
-                    />
-                    <Button
-                        onPress={enviarMensagem}
-                        title="Enviar"
-                        color="#00cc0077" />
-
+                    <Text style={styles.subTitle}>Mensagem</Text>
                     {listarMensagem.map((msg, key) => {
                         return (
                             <View key={key}>
@@ -183,25 +172,95 @@ function Chat() {
                             </View>
                         )
                     })}
-                </>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="mensagem..."
+                        value={mensagem}
+                        onChangeText={(texto) => { setMensagem(texto) }}
+                    />
+                    <TouchableOpacity
+                        onPress={enviarMensagem}
+                        style={styles.btnConectar}
+                    >
+                        <Text style={styles.btnConectarTitulo}>Enviar</Text>
+                    </TouchableOpacity>
+                </SafeAreaView>
             }
-        </View>
+        </ScrollView>
     )
 }
 
 export const styles = StyleSheet.create({
     container: {
-        padding: 25,
+        paddingVertical: 40,
+        paddingHorizontal: 20,
         flex: 1,
+        justifyContent: 'center',
         backgroundColor: '#e1e1e1'
+    },
+    title: {
+        fontSize: 24,
+        color: "#009900",
+        textAlign: "center",
+        marginBottom: 16,
+        fontWeight: "700"
+    },
+    subTitle: {
+        fontSize: 16,
+        color: "#000099",
+        textAlign: "left",
+        marginBottom: 16,
+        fontWeight: "500"
+    },
+
+    label: {
+        fontSize: 16,
+        color: "#000099",
+        textAlign: "left",
+        marginTop: 16
     },
     input: {
         height: 40,
         borderWidth: 1,
         padding: 10,
         marginVertical: 10,
-        borderRadius: 12
-    }
+        borderRadius: 8,
+        borderColor: "#000099",
+        color: "#000099",
+        fontSize: 16
+    },
+
+    radio: {
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: 4
+    },
+
+    radioTexto: {
+        fontSize: 16,
+        color: "#000099",
+        textAlign: "left",
+    },
+
+    btnConectar: {
+        height: 40,
+        backgroundColor: "#e1e1e1",
+        borderWidth: 1,
+        borderColor: "#000099",
+        borderRadius: 8,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginVertical: 24
+    },
+    btnConectarTitulo: {
+        textAlign: "center",
+        color: "#000099",
+        fontSize: 24,
+        fontWeight: "700"
+    },
 })
 
 export default Chat;

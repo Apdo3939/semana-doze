@@ -174,4 +174,4 @@ io.on("connection", (socket) => {
         });
         socket.to(Number(data.sala)).emit("receber_mensagem", data.conteudo);
     });
-})
+});
